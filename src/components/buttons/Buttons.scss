@@ -1,0 +1,61 @@
+@import "../../styles/variables";
+
+@mixin baseButton($bgColor, $textColor:#ffffff, $border:none) {
+    background-color: $bgColor;
+    color:$textColor;
+    line-height: 35px;
+    border:$border;
+    border-radius: 3px;
+    padding: 0 20px;
+    cursor: pointer;
+    transition: background-color 0.5s;
+}
+
+@mixin btnFont($color){
+    font-size: 14px;
+    color:$color;
+    font-weight: bold;
+}
+
+@mixin btnDefaultHoverTransition($bgColor, $color:#fff){
+    background-color: $bgColor;
+    color:$color;
+}
+
+.btn1{
+    @include baseButton($btn1Color);
+    @include btnFont(#fff);
+}
+
+.btn-success{
+    @include baseButton($btnSucess);
+    @include btnFont(#fff);
+}
+
+.btn2{
+    @include baseButton($btn2Color)
+}
+
+.btn1-outline{
+    @include baseButton(#ffffff, $btn1Color, 1px solid $btn1Color);
+    @include btnFont($btn1Color);
+    line-height: 32px;
+    &:hover{
+        @include btnDefaultHoverTransition($btn1Color)
+    }
+}
+
+.btn1-sm{
+    @extend .btn1;
+    line-height: 25px;
+    padding: 0 15px;
+    font-size: 12px;
+}
+
+.btn-icon-pdr{
+    padding-right: 10px;
+}
+
+.btn-icon-pdl{
+    padding-left: 10px;
+}
