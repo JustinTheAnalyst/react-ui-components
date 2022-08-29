@@ -1,0 +1,134 @@
+import React, {Component, ReactChild} from "react";
+import ReactTooltip from "react-tooltip";
+import {Guid} from "js-guid";
+import ReactDOM from "react-dom";
+
+export enum ButtonType {
+    Default,
+    Outline,
+    Text,
+    Toolbar,
+    ToolbarLight,
+}
+export enum ButtonSize {
+    Default,
+    Small,
+}
+interface IProps {
+    className?: string,
+    onClick?: () => void,
+    iconClass: string,
+    buttonType?: ButtonType,
+    buttonSize?: ButtonSize,
+    tooltip?: string,
+    tooltipPosition?: 'top' | 'right' | 'bottom' | 'left',
+    disabled?: boolean,
+};
+interface IState {
+    disabled?: boolean,
+}
+export class IconButton extends Component<IProps, IState> {
+
+    constructor(props: IProps) {
+        super(props);
+
+        this.state = {
+            disabled: this.props.disabled,
+        }
+    }
+
+    componentDidMount() {
+        $('button[data-toggle="tooltip"]').tooltip();
+    }
+
+    componentDidUpdate(prevProps: Readonly<IProps>, prevState: Readonly<IState>) {
+        if (this.state.disabled != this.props.disabled) {
+            this.setState(state => { return {
+                disabled: this.props.disabled,
+            }});
+        }
+    }
+
+    render() {
+        let onClick = this.props.onClick;
+        let iconClass = this.props.iconClass;
+        let className = this.props.className;
+        let tooltip = this.props.tooltip;
+        let tooltipPosition = this.props.tooltipPosition;
+        let buttonClass = this.generateButtonClass(this.props.buttonType, this.props.buttonSize);
+        let id = new Guid().toString();
+
+        return (<>
+            {tooltip && <>
+                {
+                    ReactDOM.createPortal(
+                        <ReactTooltip
+                            id={id}
+                            place={tooltipPosition}
+                            effect='float'
+                        >
+                            {tooltip}
+                        </ReactTooltip>,
+                        document.body)
+                }
+            </>}
+            <button
+                data-tip
+                data-for={id}
+                type="button"
+                className={`${buttonClass} ${className ?? ""}`}
+                onClick={onClick}
+                disabled={this.state.disabled}
+            >
+                <i className={iconClass} />
+            </button>
+        </>);
+    }
+
+    private generateButtonClass(buttonType?: ButtonType, buttonSize?: ButtonSize) {
+        if (!buttonType) buttonType = ButtonType.Default;
+        if (!buttonSize) buttonSize = ButtonSize.Default;
+
+        let buttonClass = "";
+
+        switch (buttonType) {
+            case ButtonType.Default:
+                buttonClass += "btn btn-primary";
+                break;
+            case ButtonType.Outline:
+                buttonClass += "btn btn-outline-primary";
+                break;
+            case ButtonType.Text:
+                buttonClass += "btn btn-icon-toolbar";
+                break;
+            case ButtonType.Toolbar:
+                buttonClass += "btn btn-icon-toolbar";
+                break;
+            case ButtonType.ToolbarLight:
+                buttonClass += "btn btn-icon-toolbar light";
+                break;
+        }
+
+        switch (buttonSize) {
+            case ButtonSize.Default:
+                if (buttonType == ButtonType.Toolbar || buttonType == ButtonType.ToolbarLight) {
+                    // if this is a toolbar button, do nothing
+                } else {
+                    // otherwise we just add this class
+                    buttonClass += " btn-icon";
+                }
+                break;
+            case ButtonSize.Small:
+                if (buttonType == ButtonType.Toolbar || buttonType == ButtonType.ToolbarLight) {
+                    // if this is a toolbar button, to make small we replace a class
+                    buttonClass = buttonClass.replace("btn-icon-toolbar", "btn-icon-toolbar-small")
+                } else {
+                    // otherwise we just add this class
+                    buttonClass += " btn-icon-small";
+                }
+                break;
+        }
+
+        return buttonClass;
+    }
+}
